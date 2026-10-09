@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const sourcePath = resolve(root, "data", "data.js");
+const girlsSourcePath = resolve(root, "data", "girls-stats.js");
 const indexPath = resolve(root, "public", "index.html");
 const outputDir = resolve(root, "dist");
 
@@ -27,6 +28,7 @@ records.sort((a, b) => a.date.localeCompare(b.date) || a.venue.localeCompare(b.v
 await mkdir(outputDir, { recursive: true });
 await writeFile(resolve(outputDir, "index.html"), await readFile(indexPath));
 await writeFile(resolve(outputDir, "data.js"), `window.KEIRIN_RECORDS = ${JSON.stringify(records)};\n`, "utf8");
+await writeFile(resolve(outputDir, "girls-stats.js"), await readFile(girlsSourcePath));
 await writeFile(resolve(outputDir, ".nojekyll"), "", "utf8");
 
 console.log(`Built ${records.length} records into dist/`);

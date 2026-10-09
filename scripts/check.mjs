@@ -19,4 +19,26 @@ for (const [index, record] of records.entries()) {
 const stake = records.reduce((sum, record) => sum + Number(record.stake || 0), 0);
 const payout = records.reduce((sum, record) => sum + Number(record.payout || 0), 0);
 const hits = records.filter((record) => record.hit).length;
-console.log(JSON.stringify({ records: records.length, stake, payout, profit: payout - stake, hits }));
+const girlsSource = (await readFile(resolve(root, "data", "girls-stats.js"), "utf8")).trim();
+const girlsMatch = girlsSource.match(/^window\.GIRLS_TRACK_STATS\s*=\s*([\s\S]*);$/);
+if (!girlsMatch) throw new Error("data/girls-stats.js has an invalid format");
+const girls = JSON.parse(girlsMatch[1]);
+if (!Array.isArray(girls.athletes)) throw new Error("girls-stats.js: athletes must be an array");
+for (const athlete of girls.athletes) {
+  if (!athlete.registrationNo || !athlete.name || !Array.isArray(athlete.venues)) {
+    throw new Error("girls-stats.js: invalid athlete record");
+  }
+  for (const venue of athlete.venues) {
+    if (venue.wins > venue.top2 || venue.top2 > venue.top3 || venue.top3 > venue.starts) {
+      throw new Error(`girls-stats.js: invalid counts for ${athlete.registrationNo} ${venue.venueCode}`);
+    }
+    const decisions = ["decisionEscape", "decisionSprint", "decisionPass", "decisionMark"];
+    if (decisions.some((key) => !Number.isInteger(venue[key]) || venue[key] < 0)) {
+      throw new Error(`girls-stats.js: invalid decision counts for ${athlete.registrationNo} ${venue.venueCode}`);
+    }
+    if (decisions.reduce((sum, key) => sum + venue[key], 0) > venue.decisionChecked) {
+      throw new Error(`girls-stats.js: decision counts exceed checked rows for ${athlete.registrationNo} ${venue.venueCode}`);
+    }
+  }
+}
+console.log(JSON.stringify({ records: records.length, stake, payout, profit: payout - stake, hits, girlsAthletes: girls.athletes.length, girlsResults: girls.resultRows, girlsDecisionChecked: girls.decisionCheckedRows }));
