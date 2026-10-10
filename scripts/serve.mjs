@@ -4,7 +4,7 @@ import { createServer } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..", "dist");
-const port = Number(process.env.PORT || 4173);
+const port = Number(process.env.PORT || 43175);
 const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8" };
 
 createServer(async (request, response) => {
@@ -20,4 +20,4 @@ createServer(async (request, response) => {
   } catch {
     response.writeHead(404).end("Not found");
   }
-}).listen(port, () => console.log(`Preview: http://127.0.0.1:${port}`));
+}).listen(port, "127.0.0.1", () => console.log(`Preview: http://127.0.0.1:${port}`));

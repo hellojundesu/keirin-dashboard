@@ -28,6 +28,9 @@ for (const athlete of girls.athletes) {
   if (!athlete.registrationNo || !athlete.name || !Array.isArray(athlete.venues)) {
     throw new Error("girls-stats.js: invalid athlete record");
   }
+  if (girls.schemaVersion >= 3 && (!athlete.nameKana || typeof athlete.nameKana !== "string")) {
+    throw new Error(`girls-stats.js: missing nameKana for ${athlete.registrationNo}`);
+  }
   for (const venue of athlete.venues) {
     if (venue.wins > venue.top2 || venue.top2 > venue.top3 || venue.top3 > venue.starts) {
       throw new Error(`girls-stats.js: invalid counts for ${athlete.registrationNo} ${venue.venueCode}`);
