@@ -1,0 +1,1 @@
+window.KEIRIN_RECORDS = [];
